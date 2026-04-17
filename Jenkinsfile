@@ -56,6 +56,7 @@ pipeline {
                 bat '''
                 set KUBECONFIG=C:\\Users\\ELCOT\\.kube\\config
                 kubectl apply -f k8s/
+                kubectl rollout restart deployment devops-app
                 '''
             }
         }
