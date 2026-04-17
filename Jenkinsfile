@@ -4,12 +4,12 @@ pipeline {
     environment {
         DOCKER_IMAGE = "mano0603/devops-app"
     }
-
+//https://github.com/Murugan0603/devops-project2.git
     stages {
 
         stage('Clone') {
             steps {
-                git branch: 'main', url: 'https://github.com/YOUR_USERNAME/devops-project.git'
+                git branch: 'main', url: 'https://github.com/Murugan0603/devops-project.git'
             }
         }
 
@@ -23,7 +23,7 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                bat 'docker login -u mano0603 -p YOUR_DOCKER_TOKEN'
+                bat 'docker login -u mano0603 -p dckr_pat_lDJTc_vYxFUeV_prl9vioHUEaQw'
                 bat 'docker push %DOCKER_IMAGE%'
             }
         }
