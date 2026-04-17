@@ -3,13 +3,18 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "mano0603/devops-app"
+
+        // AWS credentials from Jenkins
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
+        DOCKER_PASSWORD = credentials('docker-password')
     }
-//https://github.com/Murugan0603/devops-project2.git
+
     stages {
 
         stage('Clone') {
             steps {
-                git branch: 'main', url: 'https://github.com/Murugan0603/devops-project.git'
+                git branch: 'main', url: 'https://github.com/Murugan0603/devops-project2.git'
             }
         }
 
@@ -23,23 +28,34 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                bat 'docker login -u mano0603 -p dckr_pat_lDJTc_vYxFUeV_prl9vioHUEaQw'
-                bat 'docker push %DOCKER_IMAGE%'
+                bat '''
+                echo %DOCKER_PASSWORD% | docker login -u mano0603 --password-stdin
+                docker push %DOCKER_IMAGE%
+                '''
             }
         }
 
         stage('Terraform Apply') {
             steps {
                 dir('terraform') {
-                    bat 'terraform init'
-                    bat 'terraform apply -auto-approve'
+                    bat '''
+                    set AWS_ACCESS_KEY_ID=%AWS_ACCESS_KEY_ID%
+                    set AWS_SECRET_ACCESS_KEY=%AWS_SECRET_ACCESS_KEY%
+                    set AWS_DEFAULT_REGION=ap-south-1
+
+                    terraform init
+                    terraform apply -auto-approve
+                    '''
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                bat 'set KUBECONFIG=C:\\Users\\ELCOT\\.kube\\config && kubectl apply -f k8s/'
+                bat '''
+                set KUBECONFIG=C:\\Users\\ELCOT\\.kube\\config
+                kubectl apply -f k8s/
+                '''
             }
         }
     }
